@@ -1,5 +1,7 @@
 #include "Vec3.hpp"
 
+#include "Util.hpp"
+
 namespace rt
 {
 
@@ -92,7 +94,7 @@ namespace rt
         return *this *= 1 / t;
     }
 
-        double Vec3::lenght_sq() const
+    double Vec3::lenght_sq() const
     {
         return x * x + y * y + z * z;
     }
@@ -101,8 +103,19 @@ namespace rt
         return sqrt(lenght_sq());
     }
 
+    Vec3 Vec3::random()
+    {
+        return Vec3(random_double(), random_double(), random_double());
+    }
+
+    Vec3 Vec3::random(double min, double max)
+    {
+        return Vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    }
+
     // Utility functions
-    std::ostream &operator<<(std::ostream &out, const Vec3 &v)
+    std::ostream &
+    operator<<(std::ostream &out, const Vec3 &v)
     {
         return out << v.x << ' ' << v.y << ' ' << v.z;
     }
@@ -153,5 +166,30 @@ namespace rt
     Vec3 unit_vector(Vec3 u)
     {
         return u / u.lenght();
+    }
+
+    Vec3 random_in_unit_sphere()
+    {
+        while (true)
+        {
+            Vec3 p = Vec3::random(-1, 1);
+            if (p.lenght_sq() >= 1)
+                continue;
+            return p;
+        }
+    }
+
+    Vec3 random_unit_sphere()
+    {
+        return unit_vector(random_in_unit_sphere());
+    }
+
+    Vec3 random_in_hemisphere(const Vec3 &normal)
+    {
+        Vec3 in_unit_sphere = random_in_unit_sphere();
+        if (dot(in_unit_sphere, normal) > 0.0)
+            return in_unit_sphere;
+        else
+            return -in_unit_sphere;
     }
 }

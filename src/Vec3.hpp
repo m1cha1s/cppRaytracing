@@ -33,6 +33,9 @@ namespace rt
         double lenght_sq() const;
         double lenght() const;
 
+        static Vec3 random();
+        static Vec3 random(double min, double max);
+
         double x, y, z;
     };
 
@@ -50,4 +53,7 @@ namespace rt
     double dot(const Vec3 &u, const Vec3 &v);
     Vec3 cross(const Vec3 &u, const Vec3 &v);
     Vec3 unit_vector(Vec3 u);
+    Vec3 random_in_unit_sphere();
+    Vec3 random_unit_sphere();
+    Vec3 random_in_hemisphere(const Vec3 &normal);
 }
