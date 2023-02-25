@@ -5,6 +5,8 @@
 #include "HittableList.hpp"
 #include "Sphere.hpp"
 #include "Hittable.hpp"
+#include "Camera.hpp"
+#include "Util.hpp"
 
 extern "C"
 {
@@ -23,12 +25,27 @@ rt::Color ray_color(const rt::Ray &r, const rt::Hittable &world)
     return (1.0 - t) * rt::Color(1.0, 1.0, 1.0) + t * rt::Color(0.5, 0.7, 1.0);
 }
 
+void color_correction(rt::Color &pixel_color, int samples_per_pixel)
+{
+
+    double scale = 1.0 / samples_per_pixel;
+
+    pixel_color *= scale;
+
+    double r = clamp(pixel_color.x, 0.0, 0.999);
+    double g = clamp(pixel_color.y, 0.0, 0.999);
+    double b = clamp(pixel_color.z, 0.0, 0.999);
+
+    pixel_color = rt::Color(r, g, b);
+}
+
 int main()
 {
     // Image
     const double aspect_ratio = 16.0 / 9.0;
     const int width = 400;
     const int height = width / aspect_ratio;
+    const int samples_per_pixel = 100;
 
     // World
     rt::HittableList world;
@@ -36,14 +53,7 @@ int main()
     world.add(new rt::Sphere(rt::Point3(0, -100.5, -1), 100));
 
     // Camera
-    const double viewport_height = 2.0;
-    const double viewport_width = aspect_ratio * viewport_height;
-    const double focal_lenght = 1.0;
-
-    const rt::Point3 origin = rt::Point3(0, 0, 0);
-    const rt::Vec3 horizontal = rt::Vec3(viewport_width, 0, 0);
-    const rt::Vec3 vertical = rt::Vec3(0, viewport_height, 0);
-    const rt::Point3 lower_left_corner = origin - horizontal / 2 - vertical / 2 - rt::Vec3(0, 0, focal_lenght);
+    rt::Camera cam(aspect_ratio);
 
     InitWindow(width, height, "Raytracing");
     SetTargetFPS(10);
@@ -55,11 +65,16 @@ int main()
         {
             for (int x = 0; x < width; ++x)
             {
-                double u = double(x) / (width - 1);
-                double v = double(y) / (height - 1);
-                rt::Ray r(origin, lower_left_corner + u * horizontal + v * vertical - origin);
-                rt::Color pixel_color = ray_color(r, world);
-                DrawPixel(x, height - y, ColorFromNormalized(pixel_color.to_vector4(1)));
+                rt::Color pixel_color(0, 0, 0);
+                for (int s = 0; s < samples_per_pixel; ++s)
+                {
+                    double u = double(x + random_double()) / (width - 1);
+                    double v = double(y + random_double()) / (height - 1);
+                    rt::Ray r = cam.get_ray(u, v);
+                    pixel_color += ray_color(r, world);
+                }
+                color_correction(pixel_color, samples_per_pixel);
+                DrawPixel(x, height - y, ColorFromNormalized(to_vector4(pixel_color, 1)));
             }
         }
     }

@@ -92,12 +92,7 @@ namespace rt
         return *this *= 1 / t;
     }
 
-    Vector4 Vec3::to_vector4(double t)
-    {
-        return (Vector4){float(x), float(y), float(z), float(t)};
-    }
-
-    double Vec3::lenght_sq() const
+        double Vec3::lenght_sq() const
     {
         return x * x + y * y + z * z;
     }

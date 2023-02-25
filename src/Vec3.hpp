@@ -3,10 +3,10 @@
 #include <cmath>
 #include <iostream>
 
-extern "C"
-{
-#include <raylib.h>
-}
+// extern "C"
+// {
+// #include <raylib.h>
+// }
 
 namespace rt
 {
@@ -32,8 +32,6 @@ namespace rt
 
         double lenght_sq() const;
         double lenght() const;
-
-        Vector4 to_vector4(double t);
 
         double x, y, z;
     };
